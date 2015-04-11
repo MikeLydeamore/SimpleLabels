@@ -11,8 +11,6 @@ public class PacketHandler {
 	
 	public static void init()
 	{
-		INSTANCE.registerMessage(MessageLabelUpdate.class, MessageLabelUpdate.class, id++, Side.CLIENT);
+		INSTANCE.registerMessage(MessageLabelUpdate.Handler.class, MessageLabelUpdate.class, id++, Side.CLIENT);
 	}
-
-
 }
