@@ -1,5 +1,8 @@
 package com.insane.simplelabels.tile;
 
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -12,6 +15,7 @@ import powercrystals.minefactoryreloaded.api.IDeepStorageUnit;
 
 import com.insane.simplelabels.MessageLabelUpdate;
 import com.insane.simplelabels.PacketHandler;
+import com.insane.simplelabels.SimpleLabels;
 
 public class TileLabel extends TileEntity
 {
@@ -19,6 +23,9 @@ public class TileLabel extends TileEntity
     private ItemStack storedItem, storedItemForRender;
     private IDeepStorageUnit dsu;
     private ForgeDirection dsuDirection = ForgeDirection.UNKNOWN;
+    private int placedDirection;
+    
+    private long clickTime = -20;
 
     public void init(int meta)
     {
@@ -39,6 +46,108 @@ public class TileLabel extends TileEntity
                 worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
             }
         }
+    }
+    
+    public boolean onRightClick(boolean sneaking)
+    {
+    	if ( (dsu=getDSU()) == null)
+    		return false;
+    	
+    	ItemStack stored = dsu.getStoredItemType();
+    	
+    	if (stored == null)
+    		return false;
+    	
+    	int extractAmount = sneaking == true ? stored.getMaxStackSize() : 1;
+    	
+    	if (extractAmount > stored.stackSize)
+    		extractAmount = stored.stackSize;
+    	
+    	EntityItem dropItem = new EntityItem(this.worldObj);
+    	ItemStack dropStack = stored.copy(); dropStack.stackSize = extractAmount;
+    	
+    	dropItem.setEntityItemStack(dropStack);
+    	dropItem.setPosition(xCoord, yCoord, zCoord);
+    	
+    	this.worldObj.spawnEntityInWorld(dropItem);
+    	
+    	dsu.setStoredItemCount(stored.stackSize - extractAmount);
+    	
+    	return true;
+    }
+    
+    public void addFromPlayer(EntityPlayer player)
+    {
+    	ItemStack heldStack = player.inventory.getCurrentItem();
+    	if (heldStack != null)
+    	{
+    		heldStack.stackSize -= this.addStack(heldStack);
+    	
+    		if (heldStack.stackSize == 0)
+    			player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
+    	}
+    	
+    	if (this.worldObj.getTotalWorldTime() - this.clickTime < 10L)
+    	{
+    		InventoryPlayer playerInv = player.inventory;
+    		for (int invSlot = 0 ; invSlot < playerInv.getSizeInventory(); ++invSlot)
+    		{
+    			ItemStack slotStack = playerInv.getStackInSlot(invSlot);
+    			
+    			int input = this.addStack(slotStack);
+    			if (input > 0)
+    			{
+    				slotStack.stackSize -= input;
+    				if (slotStack.stackSize == 0)
+    					playerInv.setInventorySlotContents(invSlot, (ItemStack) null);
+    			}
+    		}
+    	}
+    	
+    	this.clickTime = this.worldObj.getTotalWorldTime();
+    	SimpleLabels.proxy.updatePlayerInventory(player);
+    	
+    	this.markDirty();
+    }
+    
+    private int addStack(ItemStack stack)
+    {
+    	if (stack == null)
+    		return 0;
+    	
+    	if ( (dsu=getDSU()) == null)
+    		return 0;
+    	
+    	ItemStack stored = dsu.getStoredItemType();
+    	if (stored == null)
+    	{
+    		dsu.setStoredItemType(stack, stack.stackSize);
+    		return stack.stackSize;
+    	}
+    	
+    	if (stored.getItem() == stack.getItem() && stored.getItemDamage() == stack.getItemDamage())
+    	{
+    		int addAmount = stack.stackSize;
+    		if (dsu.getMaxStoredCount() < stored.stackSize + stack.stackSize)
+    			addAmount = dsu.getMaxStoredCount() - stored.stackSize;
+    		
+    		dsu.setStoredItemCount(stored.stackSize + addAmount);
+    		
+    		return addAmount;
+    	}
+    	
+    	return 0;
+    			
+    }
+    
+    public void setPlacedDirection(int newDirection)
+    {
+    	this.placedDirection = newDirection;
+    }
+    
+    public int getPlacedDirection()
+    {
+    	return this.placedDirection;
     }
 
     private IDeepStorageUnit getDSU()
@@ -114,6 +223,8 @@ public class TileLabel extends TileEntity
             tag.setTag("storedItem", item);
         }
         tag.setString("dsuDir", dsuDirection.name());
+        tag.setInteger("renderDirection", placedDirection);
+        tag.setLong("clickTime", clickTime);
         super.writeToNBT(tag);
     }
 
@@ -128,6 +239,8 @@ public class TileLabel extends TileEntity
             setLabelStack(stack);
         }
         this.dsuDirection = ForgeDirection.valueOf(tag.getString("dsuDir"));
+        this.placedDirection = tag.getInteger("renderDirection");
+        this.clickTime = tag.getLong("clickTime");
         super.readFromNBT(tag);
     }
 

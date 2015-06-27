@@ -63,6 +63,8 @@ public class RenderLabel extends TileEntitySpecialRenderer implements ISimpleBlo
 
             // Rotate it for the face we are rendering on
             rotateToDir(te.getDsuDirection());
+            if (te.getDsuDirection() == ForgeDirection.DOWN || te.getDsuDirection() == ForgeDirection.UP)
+            	rotateText(te.getPlacedDirection());
             glTranslatef(-0.2f, -0.15f, inset);
 
             // Flatten and invert it
@@ -79,6 +81,8 @@ public class RenderLabel extends TileEntitySpecialRenderer implements ISimpleBlo
             glTranslated(x + 0.5, y + 0.5, z + 0.5);
             glRotatef(180, 0, 0, 1);
             rotateToDir(te.getDsuDirection());
+            if (te.getDsuDirection() == ForgeDirection.DOWN || te.getDsuDirection() == ForgeDirection.UP)
+            	rotateText(te.getPlacedDirection());
             glTranslated(0.0075f, -0.25f, inset);
             glScalef(0.011f, 0.011f, 0.11f);
             int overflow = 0;
@@ -126,6 +130,7 @@ public class RenderLabel extends TileEntitySpecialRenderer implements ISimpleBlo
             break;
         case UP:
             glRotatef(-90, 1, 0, 0);
+            //glRotatef(90, 0, 0, 1);
             break;
         case DOWN:
             glRotatef(90, 1, 0, 0);
@@ -133,6 +138,30 @@ public class RenderLabel extends TileEntitySpecialRenderer implements ISimpleBlo
         default:
             break;
         }
+    }
+    
+    private void rotateText(int direction)
+    {
+    	switch (direction)
+    	{
+    	case 0:
+    		glRotatef(180, 0, 0, 1);
+    		break;
+    		
+    	case 1:
+    		glRotatef(-90, 0, 0, 1);
+    		break;
+    	
+    	case 2:
+    		break;
+    		
+    	case 3:
+    		glRotatef(90, 0, 0, 1);
+    		break;
+
+    	default:
+    		break;
+    	}
     }
 
     @Override

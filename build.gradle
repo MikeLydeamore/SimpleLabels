@@ -22,7 +22,7 @@ group= "com.yourname.modid" // http://maven.apache.org/guides/mini/guide-naming-
 archivesBaseName = "modid"
 
 minecraft {
-    version = "1.7.10-10.13.2.1277"
+    version = "1.7.10-10.13.4.1448-1.7.10"
     runDir = "eclipse"
 }
 
@@ -30,27 +30,27 @@ repositories {
     maven { url 'http://maven.tterrag.com/' }
 	ivy {
 		name "CoFHLib"
-		artifactPattern "http://addons.cursecdn.com/files/2218/257/[module]-[revision].[ext]"
+		artifactPattern "http://addons.cursecdn.com/files/2238/569/[module]-[revision].[ext]"
 	}
 	ivy {
 		name "CoFHCore"
-        artifactPattern "http://addons.cursecdn.com/files/2218/330/[module]-[revision].[ext]"
+        artifactPattern "http://addons.cursecdn.com/files/2240/264/[module]-[revision].[ext]"
 	}
 	ivy {
 		name "ThermalExpansion"
-        artifactPattern "http://addons.curse.cursecdn.com/files/2218/263/[module]-[revision].[ext]"
+        artifactPattern "http://addons.curse.cursecdn.com/files/2234/200/[module]-[revision].[ext]"
     }
 	ivy {
 		name "ThermalFoundation"
-        artifactPattern "http://addons.curse.cursecdn.com/files/2212/444/[module]-[revision].[ext]"
+        artifactPattern "http://addons.curse.cursecdn.com/files/2240/82/[module]-[revision].[ext]"
     }
 }
 
 dependencies {
-   compile name: 'CoFHLib', version: "${cofhlib_version}", ext: 'jar'
-	compile name: 'CoFHCore', version: "${cofhcore_version}", ext: 'jar'
-	compile name: 'ThermalExpansion', version: "${texpansion_version}", ext: 'jar'
-	compile name: 'ThermalFoundation', version: "${tfoundation_version}", ext: 'jar'
+   compile name: 'CoFHLib', version: "[1.7.10]1.0.3B1-163-dev", ext: 'jar'
+	compile name: 'CoFHCore', version: "[1.7.10]3.0.2-283-dev", ext: 'jar'
+	compile name: 'ThermalExpansion', version: "[1.7.10]4.0.1-182", ext: 'jar'
+	compile name: 'ThermalFoundation', version: "[1.7.10]1.0.0-86", ext: 'jar'
 
 }
 processResources

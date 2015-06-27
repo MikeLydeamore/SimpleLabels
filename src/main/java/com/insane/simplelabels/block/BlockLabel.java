@@ -6,10 +6,13 @@ import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
@@ -31,6 +34,7 @@ public class BlockLabel extends Block implements ITileEntityProvider
         super(Material.wood);
         this.setBlockName("label");
         this.setStepSound(soundTypeWood);
+        this.setHardness(2f);
     }
 
     @Override
@@ -68,6 +72,41 @@ public class BlockLabel extends Block implements ITileEntityProvider
     {
         return side;
     }
+    
+    @Override
+    public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player)
+    {
+    	TileLabel te = (TileLabel) world.getTileEntity(x, y, z);
+    	
+    	te.onRightClick(player.isSneaking());
+    	
+    	super.onBlockClicked(world, x, y, z, player);
+    }
+    
+    @Override
+    public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase livingBase, ItemStack stack)
+    {
+    	int meta = world.getBlockMetadata(x, y, z);
+    	if (meta == 0 || meta == 1)
+    	{
+    		int whichDirectionFacing = MathHelper.floor_double((double)(livingBase.rotationYaw * 4.0F / 360.0F) + 2.5D) & 3;
+    	
+    		TileLabel te = (TileLabel) world.getTileEntity(x, y, z);
+    		te.setPlacedDirection(whichDirectionFacing);
+    	}
+    }
+    
+    @Override
+	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float var7, float var8, float var9) {
+    	
+		if (!world.isRemote) 
+		{
+			TileLabel te = (TileLabel) world.getTileEntity(x, y, z);
+			te.addFromPlayer(player);
+		}
+		
+		return true;
+	}
 
     @Override
     public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z)

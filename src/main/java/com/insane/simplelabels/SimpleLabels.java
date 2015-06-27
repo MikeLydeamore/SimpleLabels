@@ -1,5 +1,9 @@
 package com.insane.simplelabels;
 
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.oredict.ShapedOreRecipe;
+
 import com.insane.simplelabels.block.BlockLabel;
 import com.insane.simplelabels.block.itemblock.ItemBlockLabel;
 import com.insane.simplelabels.tile.TileLabel;
@@ -37,6 +41,8 @@ public class SimpleLabels {
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent event)
 	{
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(label), new Object[] {"xxx","xyx","xxx", 'x', Items.paper, 'y', "slabWood"}));
+		
 		PacketHandler.init();
 	}
 	
