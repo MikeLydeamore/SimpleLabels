@@ -18,7 +18,7 @@ buildscript {
 apply plugin: 'forge'
 apply plugin: 'maven-publish'
 
-def buildNum = System.getevn().BUILD_NUMBER
+def buildNum = System.getenv().BUILD_NUMBER
 version = "1.7.10-1.0-${buildNum}"
 
 group= "com.insane.simplelabels" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
