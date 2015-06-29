@@ -15,7 +15,7 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 
-@Mod(modid=SimpleLabels.MODID, name="SimpleLabels", version=SimpleLabels.VERSION, dependencies="after:MineFactoryReloaded")
+@Mod(modid=SimpleLabels.MODID, name="SimpleLabels", version=SimpleLabels.VERSION)
 public class SimpleLabels {
 	
 	public static final String MODID = "SimpleLabels";

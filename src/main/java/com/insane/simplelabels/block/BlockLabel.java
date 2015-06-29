@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -51,6 +52,12 @@ public class BlockLabel extends Block implements ITileEntityProvider
         {
             subItems.add(new ItemStack(this, 1, ix));
         }
+    }
+    
+    @Override
+    public void registerBlockIcons(IIconRegister register)
+    {
+    	this.blockIcon = register.registerIcon("simplelabels:label");
     }
 
     @Override
@@ -176,11 +183,5 @@ public class BlockLabel extends Block implements ITileEntityProvider
     public boolean renderAsNormalBlock()
     {
         return false;
-    }
-
-    @Override
-    public IIcon getIcon(int side, int meta)
-    {
-        return Blocks.planks.getIcon(side, 0);
     }
 }
