@@ -66,6 +66,18 @@ public class BlockLabel extends Block implements ITileEntityProvider
         te.init(meta);
         return te;
     }
+    
+    @Override
+    public void onNeighborBlockChange(World world, int x, int y, int z, Block neighborBlock) 
+    {
+    	TileLabel te = (TileLabel) world.getTileEntity(x, y, z);
+    	if (!world.isRemote && !te.hasDSU())
+    	{
+    		System.out.println("test");
+    		this.dropBlockAsItem(world, x, y, z, new ItemStack(this));
+    		world.setBlockToAir(x, y, z);
+    	}
+    }
 
     @Override
     public int onBlockPlaced(World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int meta)

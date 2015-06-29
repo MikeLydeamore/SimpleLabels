@@ -15,10 +15,11 @@ import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 
-@Mod(modid=SimpleLabels.MODID, name="SimpleLabels", version="0.0.1", dependencies="after:MineFactoryReloaded")
+@Mod(modid=SimpleLabels.MODID, name="SimpleLabels", version=SimpleLabels.VERSION, dependencies="after:MineFactoryReloaded")
 public class SimpleLabels {
 	
 	public static final String MODID = "SimpleLabels";
+	public static final String VERSION = "@VERSION@";
 	
 	@Mod.Instance(MODID)
 	public SimpleLabels instance;

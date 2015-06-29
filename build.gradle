@@ -16,14 +16,50 @@ buildscript {
 }
 
 apply plugin: 'forge'
+apply plugin: 'maven-publish'
 
-version = "1.0"
-group= "com.yourname.modid" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "modid"
+def buildNum = System.getevn().BUILD_NUMBER
+version = "1.7.10-1.0-${buildNum}"
+
+group= "com.insane.simplelabels" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "SimpleLabels"
 
 minecraft {
     version = "1.7.10-10.13.4.1448-1.7.10"
     runDir = "eclipse"
+}
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    from javadoc.destinationDir
+    classifier = 'javadoc'
+}
+
+task deobfJar(type: Jar) {
+    from sourceSets.main.output
+    classifier = 'deobf'
+}
+
+publishing {
+    tasks.publish.dependsOn 'build'
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+
+            artifact sourceJar
+            artifact deobfJar
+        }
+    }
+
+    repositories {
+        if (project.hasProperty('mavendir')) {
+            maven { url mavendir }
+        }
+    }
 }
 
 repositories {
@@ -47,10 +83,10 @@ repositories {
 }
 
 dependencies {
-   compile name: 'CoFHLib', version: "[1.7.10]1.0.3B1-163-dev", ext: 'jar'
-	compile name: 'CoFHCore', version: "[1.7.10]3.0.2-283-dev", ext: 'jar'
-	compile name: 'ThermalExpansion', version: "[1.7.10]4.0.1-182", ext: 'jar'
-	compile name: 'ThermalFoundation', version: "[1.7.10]1.0.0-86", ext: 'jar'
+   //compile name: 'CoFHLib', version: "[1.7.10]1.0.3B1-163-dev", ext: 'jar'
+//	compile name: 'CoFHCore', version: "[1.7.10]3.0.2-283-dev", ext: 'jar'
+//	compile name: 'ThermalExpansion', version: "[1.7.10]4.0.1-182", ext: 'jar'
+//	compile name: 'ThermalFoundation', version: "[1.7.10]1.0.0-86", ext: 'jar'
 
 }
 processResources

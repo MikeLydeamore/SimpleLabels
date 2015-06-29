@@ -155,6 +155,11 @@ public class TileLabel extends TileEntity
         return (IDeepStorageUnit) this.worldObj.getTileEntity(this.xCoord - dsuDirection.offsetX, this.yCoord - dsuDirection.offsetY, this.zCoord
                 - dsuDirection.offsetZ);
     }
+    
+    public boolean hasDSU()
+    {
+    	return getDSU() != null;
+    }
 
     @Override
     public AxisAlignedBB getRenderBoundingBox()
