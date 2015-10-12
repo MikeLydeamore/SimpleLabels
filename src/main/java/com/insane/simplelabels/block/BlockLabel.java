@@ -96,9 +96,12 @@ public class BlockLabel extends Block implements ITileEntityProvider
     @Override
     public void onBlockClicked(World world, int x, int y, int z, EntityPlayer player)
     {
-    	TileLabel te = (TileLabel) world.getTileEntity(x, y, z);
+    	if (!world.isRemote)
+    	{
+    		TileLabel te = (TileLabel) world.getTileEntity(x, y, z);
     	
-    	te.onRightClick(player.isSneaking());
+    		te.onRightClick(player.isSneaking());
+    	}
     	
     	super.onBlockClicked(world, x, y, z, player);
     }
