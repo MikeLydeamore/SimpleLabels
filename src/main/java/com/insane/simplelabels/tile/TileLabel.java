@@ -10,256 +10,294 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ITickable;
+import net.minecraft.util.MathHelper;
+import net.minecraft.util.Vec3;
 import powercrystals.minefactoryreloaded.api.IDeepStorageUnit;
 
 import com.insane.simplelabels.MessageLabelUpdate;
 import com.insane.simplelabels.PacketHandler;
 import com.insane.simplelabels.SimpleLabels;
 
-public class TileLabel extends TileEntity
+public class TileLabel extends TileEntity implements ITickable
 {
 
-	private ItemStack storedItem, storedItemForRender;
-	private IDeepStorageUnit dsu;
-	private ForgeDirection dsuDirection = ForgeDirection.UNKNOWN;
-	private int placedDirection;
+    private ItemStack storedItem, storedItemForRender;
+    private IDeepStorageUnit dsu;
+    private EnumFacing dsuDirection = null;
+    private int placedDirection;
+    
+    private long clickTime = -20;
 
-	private long clickTime = -20;
+    public void init(int meta)
+    {
+        dsuDirection = EnumFacing.getFront(meta);
+    }
 
-	public void init(int meta)
-	{
-		dsuDirection = ForgeDirection.getOrientation(meta);
-	}
+    @Override
+    public void update()
+    {
+        if (!this.worldObj.isRemote)
+        {
+        	//System.out.println(dsu.g);
+            dsu = getDSU();
+            if (dsu != null && !ItemStack.areItemStacksEqual(getLabelStack(false), dsu.getStoredItemType()))
+            {
+                setLabelStack(dsu.getStoredItemType());
+                this.markDirty();
+                this.sendPacket();
+                worldObj.markBlockForUpdate(this.pos);
+            }
+        }
+    }
+    
+    public boolean onRightClick(boolean sneaking, EntityPlayer player)
+    {
+    	if ( (dsu=getDSU()) == null)
+    		return false;
+    	
+    	ItemStack stored = dsu.getStoredItemType();
+    	
+    	if (stored == null)
+    		return false;
+    	
+    	int extractAmount = sneaking == true ? stored.getMaxStackSize() : 1;
+    	
+    	if (extractAmount > stored.stackSize)
+    		extractAmount = stored.stackSize;
+    	
+    	//EntityItem dropItem = new EntityItem(this.worldObj);
+    	ItemStack dropStack = stored.copy(); dropStack.stackSize = extractAmount;
+    	
+    	dropItemInWorld(this, player, dropStack, 0.02);
+    	
+    	//dropItem.setEntityItemStack(dropStack);
+    	//dropItem.setPosition(this.pos.getX() + 0.5*this.dsuDirection.getFrontOffsetX(), this.pos.getY() + 0.5*this.dsuDirection.getFrontOffsetY(), this.pos.getZ() + 0.5*this.dsuDirection.getFrontOffsetZ());
+    	
+    	//this.worldObj.spawnEntityInWorld(dropItem);
+    	
+    	dsu.setStoredItemCount(stored.stackSize - extractAmount);
+    	
+    	return true;
+    }
+    
+    public void addFromPlayer(EntityPlayer player)
+    {
+    	ItemStack heldStack = player.inventory.getCurrentItem();
+    	if (heldStack != null)
+    	{
+    		heldStack.stackSize -= this.addStack(heldStack);
+    	
+    		if (heldStack.stackSize == 0)
+    			player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
+    	}
+    	
+    	if (this.worldObj.getTotalWorldTime() - this.clickTime < 10L)
+    	{
+    		InventoryPlayer playerInv = player.inventory;
+    		for (int invSlot = 0 ; invSlot < playerInv.getSizeInventory(); ++invSlot)
+    		{
+    			ItemStack slotStack = playerInv.getStackInSlot(invSlot);
+    			
+    			int input = this.addStack(slotStack);
+    			if (input > 0)
+    			{
+    				slotStack.stackSize -= input;
+    				if (slotStack.stackSize == 0)
+    					playerInv.setInventorySlotContents(invSlot, (ItemStack) null);
+    			}
+    		}
+    	}
+    	
+    	this.clickTime = this.worldObj.getTotalWorldTime();
+    	SimpleLabels.proxy.updatePlayerInventory(player);
+    	
+    	this.markDirty();
+    }
+    
+    private int addStack(ItemStack stack)
+    {
+    	if (stack == null)
+    		return 0;
+    	
+    	if ( (dsu=getDSU()) == null)
+    		return 0;
+    	
+    	ItemStack stored = dsu.getStoredItemType();
+    	if (stored == null)
+    	{
+    		dsu.setStoredItemType(stack, stack.stackSize);
+    		return stack.stackSize;
+    	}
+    	
+    	if (stored.getItem() == stack.getItem() && stored.getItemDamage() == stack.getItemDamage())
+    	{
+    		int addAmount = stack.stackSize;
+    		if (dsu.getMaxStoredCount() < stored.stackSize + stack.stackSize)
+    			addAmount = dsu.getMaxStoredCount() - stored.stackSize;
+    		
+    		dsu.setStoredItemCount(stored.stackSize + addAmount);
+    		
+    		return addAmount;
+    	}
+    	
+    	return 0;
+    			
+    }
+    
+    public void setPlacedDirection(int newDirection)
+    {
+    	this.placedDirection = newDirection;
+    }
+    
+    public int getPlacedDirection()
+    {
+    	return this.placedDirection;
+    }
 
-	@Override
-	public void updateEntity()
-	{
-		if (!this.worldObj.isRemote)
-		{
-			dsu = getDSU();
-			if (dsu != null && !ItemStack.areItemStacksEqual(getLabelStack(false), dsu.getStoredItemType()))
-			{
-				setLabelStack(dsu.getStoredItemType());
-				this.markDirty();
-				this.sendPacket();
-				worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-			}
+    public IDeepStorageUnit getDSU()
+    {
+    	BlockPos pos = new BlockPos(this.pos.getX() - dsuDirection.getFrontOffsetX(), this.pos.getY() - dsuDirection.getFrontOffsetY(), this.pos.getZ()
+                - dsuDirection.getFrontOffsetZ());
+        return (IDeepStorageUnit) this.worldObj.getTileEntity(pos);
+    }
+
+    @Override
+    public AxisAlignedBB getRenderBoundingBox()
+    {
+        return dsu == null ? super.getRenderBoundingBox() : ((TileEntity) dsu).getRenderBoundingBox();
+    }
+
+    private void sendPacket()
+    {
+        PacketHandler.INSTANCE.sendToDimension(new MessageLabelUpdate(this.pos.getX(), this.pos.getY(), this.pos.getZ(), getLabelStack(false)), worldObj.provider.getDimensionId());
+    }
+
+    public ItemStack getLabelStack(boolean forRender)
+    {
+        return forRender ? storedItemForRender : storedItem;
+    }
+
+    public void setLabelStack(ItemStack inputStack)
+    {
+        if (worldObj != null)
+        {
+            this.dsu = getDSU();
+        }
+
+        if (inputStack != null)
+        {
+            this.storedItem = inputStack.copy();
+            this.storedItemForRender = inputStack.copy();
+            this.storedItemForRender.stackSize = 1;
+        }
+        else
+        {
+            this.storedItem = this.storedItemForRender = null;
+        }
+    }
+
+    public EnumFacing getDsuDirection()
+    {
+        return this.dsuDirection;
+    }
+
+    @Override
+    public Packet getDescriptionPacket()
+    {
+        NBTTagCompound tag = new NBTTagCompound();
+        this.writeToNBT(tag);
+        return new S35PacketUpdateTileEntity(this.pos, this.getBlockMetadata(), tag);
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
+    {
+        NBTTagCompound tag = pkt.getNbtCompound();
+        this.readFromNBT(tag);
+        this.dsu = getDSU();
+    }
+
+    @Override
+    public void writeToNBT(NBTTagCompound tag)
+    {
+        if (getLabelStack(false) != null)
+        {
+            NBTTagCompound item = new NBTTagCompound();
+            getLabelStack(false).writeToNBT(item);
+            item.setInteger("actualSize", getLabelStack(false).stackSize);
+            tag.setTag("storedItem", item);
+        }
+        tag.setString("dsuDir", dsuDirection.name());
+        tag.setInteger("renderDirection", placedDirection);
+        tag.setLong("clickTime", clickTime);
+        super.writeToNBT(tag);
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound tag)
+    {
+        if (tag.hasKey("storedItem"))
+        {
+            NBTTagCompound item = tag.getCompoundTag("storedItem");
+            ItemStack stack = ItemStack.loadItemStackFromNBT(item);
+            stack.stackSize = item.getInteger("actualSize");
+            setLabelStack(stack);
+        }
+        this.dsuDirection = EnumFacing.valueOf(tag.getString("dsuDir"));
+        this.placedDirection = tag.getInteger("renderDirection");
+        this.clickTime = tag.getLong("clickTime");
+        super.readFromNBT(tag);
+    }
+    
+    public static void dropItemInWorld(TileEntity source, EntityPlayer player, ItemStack stack, double speedfactor) 
+    {
+		int hitOrientation = MathHelper.floor_double(player.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
+		double stackCoordX = 0.0D, stackCoordY = 0.0D, stackCoordZ = 0.0D;
+
+		switch (hitOrientation) {
+			case 0:
+				stackCoordX = source.getPos().getX() + 0.5D;
+				stackCoordY = source.getPos().getY() + 0.5D;
+				stackCoordZ = source.getPos().getZ() - 0.25D;
+				break;
+			case 1:
+				stackCoordX = source.getPos().getX() + 1.25D;
+				stackCoordY = source.getPos().getY() + 0.5D;
+				stackCoordZ = source.getPos().getZ() + 0.5D;
+				break;
+			case 2:
+				stackCoordX = source.getPos().getX() + 0.5D;
+				stackCoordY = source.getPos().getY() + 0.5D;
+				stackCoordZ = source.getPos().getZ() + 1.25D;
+				break;
+			case 3:
+				stackCoordX = source.getPos().getX() - 0.25D;
+				stackCoordY = source.getPos().getY() + 0.5D;
+				stackCoordZ = source.getPos().getZ() + 0.5D;
+				break;
 		}
-	}
 
-	public boolean onRightClick(boolean sneaking)
-	{
-		if ( (dsu=getDSU()) == null)
-			return false;
+		EntityItem droppedEntity = new EntityItem(source.getWorld(), stackCoordX, stackCoordY, stackCoordZ, stack);
 
-		ItemStack stored = dsu.getStoredItemType();
-
-		if (stored == null)
-			return false;
-
-		if (this.worldObj.getTotalWorldTime() - this.clickTime > 2L)
-		{
-
-			int extractAmount = sneaking == true ? stored.getMaxStackSize() : 1;
-
-			if (extractAmount > stored.stackSize)
-				extractAmount = stored.stackSize;
-
-			EntityItem dropItem = new EntityItem(this.worldObj);
-			ItemStack dropStack = stored.copy(); dropStack.stackSize = extractAmount;
-
-			dropItem.setEntityItemStack(dropStack);
-			ForgeDirection dir = ForgeDirection.getOrientation(placedDirection);
-			dropItem.setPosition(xCoord+0.5+dir.offsetX, yCoord+0.5+dir.offsetY, zCoord+0.5+dir.offsetZ);
-
-			float var15 = 0.05F;
-			dropItem.motionX = (float)this.worldObj.rand.nextGaussian() * var15;
-			dropItem.motionY = (float)this.worldObj.rand.nextGaussian() * var15 + 0.2F;
-			dropItem.motionZ = (float)this.worldObj.rand.nextGaussian() * var15;
-
-			this.worldObj.spawnEntityInWorld(dropItem);
-
-			dsu.setStoredItemCount(stored.stackSize - extractAmount);
-
-			this.clickTime = this.worldObj.getTotalWorldTime();
-			
-			return true;
-		}
-		return false;
-	}
-
-	public void addFromPlayer(EntityPlayer player)
-	{
-		ItemStack heldStack = player.inventory.getCurrentItem();
-		if (heldStack != null)
-		{
-			heldStack.stackSize -= this.addStack(heldStack);
-
-			if (heldStack.stackSize == 0)
-				player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
+		if (player != null) {
+			Vec3 motion = new Vec3(player.posX - stackCoordX, player.posY - stackCoordY, player.posZ - stackCoordZ);
+			motion.normalize();
+			droppedEntity.motionX = motion.xCoord;
+			droppedEntity.motionY = motion.yCoord;
+			droppedEntity.motionZ = motion.zCoord;
+			double offset = 0.25D;
+			droppedEntity.moveEntity(motion.xCoord * offset, motion.yCoord * offset, motion.zCoord * offset);
 		}
 
-		if (this.worldObj.getTotalWorldTime() - this.clickTime < 10L)
-		{
-			InventoryPlayer playerInv = player.inventory;
-			for (int invSlot = 0 ; invSlot < playerInv.getSizeInventory(); ++invSlot)
-			{
-				ItemStack slotStack = playerInv.getStackInSlot(invSlot);
+		droppedEntity.motionX *= speedfactor;
+		droppedEntity.motionY *= speedfactor;
+		droppedEntity.motionZ *= speedfactor;
 
-				int input = this.addStack(slotStack);
-				if (input > 0)
-				{
-					slotStack.stackSize -= input;
-					if (slotStack.stackSize == 0)
-						playerInv.setInventorySlotContents(invSlot, (ItemStack) null);
-				}
-			}
-		}
-
-		this.clickTime = this.worldObj.getTotalWorldTime();
-		SimpleLabels.proxy.updatePlayerInventory(player);
-
-		this.markDirty();
+		source.getWorld().spawnEntityInWorld(droppedEntity);
 	}
 
-	private int addStack(ItemStack stack)
-	{
-		if (stack == null)
-			return 0;
-
-		if ( (dsu=getDSU()) == null)
-			return 0;
-
-		ItemStack stored = dsu.getStoredItemType();
-		if (stored == null)
-		{
-			dsu.setStoredItemType(stack, stack.stackSize);
-			return stack.stackSize;
-		}
-
-		if (stored.getItem() == stack.getItem() && stored.getItemDamage() == stack.getItemDamage())
-		{
-			int addAmount = stack.stackSize;
-			if (dsu.getMaxStoredCount() < stored.stackSize + stack.stackSize)
-				addAmount = dsu.getMaxStoredCount() - stored.stackSize;
-
-			dsu.setStoredItemCount(stored.stackSize + addAmount);
-
-			return addAmount;
-		}
-
-		return 0;
-
-	}
-
-	public void setPlacedDirection(int newDirection)
-	{
-		this.placedDirection = newDirection;
-	}
-
-	public int getPlacedDirection()
-	{
-		return this.placedDirection;
-	}
-
-	private IDeepStorageUnit getDSU()
-	{
-		return (IDeepStorageUnit) this.worldObj.getTileEntity(this.xCoord - dsuDirection.offsetX, this.yCoord - dsuDirection.offsetY, this.zCoord
-				- dsuDirection.offsetZ);
-	}
-
-	public boolean hasDSU()
-	{
-		return getDSU() != null;
-	}
-
-	@Override
-	public AxisAlignedBB getRenderBoundingBox()
-	{
-		return dsu == null ? super.getRenderBoundingBox() : ((TileEntity) dsu).getRenderBoundingBox();
-	}
-
-	private void sendPacket()
-	{
-		PacketHandler.INSTANCE.sendToDimension(new MessageLabelUpdate(xCoord, yCoord, zCoord, getLabelStack(false)), worldObj.provider.dimensionId);
-	}
-
-	public ItemStack getLabelStack(boolean forRender)
-	{
-		return forRender ? storedItemForRender : storedItem;
-	}
-
-	public void setLabelStack(ItemStack inputStack)
-	{
-		if (worldObj != null)
-		{
-			this.dsu = getDSU();
-		}
-
-		if (inputStack != null)
-		{
-			this.storedItem = inputStack.copy();
-			this.storedItemForRender = inputStack.copy();
-			this.storedItemForRender.stackSize = 1;
-		}
-		else
-		{
-			this.storedItem = this.storedItemForRender = null;
-		}
-	}
-
-	public ForgeDirection getDsuDirection()
-	{
-		return this.dsuDirection;
-	}
-
-	@Override
-	public Packet getDescriptionPacket()
-	{
-		NBTTagCompound tag = new NBTTagCompound();
-		this.writeToNBT(tag);
-		return new S35PacketUpdateTileEntity(this.xCoord, this.yCoord, this.zCoord, this.blockMetadata, tag);
-	}
-
-	@Override
-	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
-	{
-		NBTTagCompound tag = pkt.func_148857_g();
-		this.readFromNBT(tag);
-		this.dsu = getDSU();
-	}
-
-	@Override
-	public void writeToNBT(NBTTagCompound tag)
-	{
-		if (getLabelStack(false) != null)
-		{
-			NBTTagCompound item = new NBTTagCompound();
-			getLabelStack(false).writeToNBT(item);
-			item.setInteger("actualSize", getLabelStack(false).stackSize);
-			tag.setTag("storedItem", item);
-		}
-		tag.setString("dsuDir", dsuDirection.name());
-		tag.setInteger("renderDirection", placedDirection);
-		tag.setLong("clickTime", clickTime);
-		super.writeToNBT(tag);
-	}
-
-	@Override
-	public void readFromNBT(NBTTagCompound tag)
-	{
-		if (tag.hasKey("storedItem"))
-		{
-			NBTTagCompound item = tag.getCompoundTag("storedItem");
-			ItemStack stack = ItemStack.loadItemStackFromNBT(item);
-			stack.stackSize = item.getInteger("actualSize");
-			setLabelStack(stack);
-		}
-		this.dsuDirection = ForgeDirection.valueOf(tag.getString("dsuDir"));
-		this.placedDirection = tag.getInteger("renderDirection");
-		this.clickTime = tag.getLong("clickTime");
-		super.readFromNBT(tag);
-	}
 
 }
