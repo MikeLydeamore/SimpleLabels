@@ -1,14 +1,14 @@
 [
 {
-  "modid": "examplemod",
-  "name": "Example Mod",
-  "description": "Example placeholder mod.",
+  "modid": "simplelabels",
+  "name": "Simple Labels",
+  "description": "Labels for your DSU's!",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",
-  "authorList": ["ExampleDude"],
-  "credits": "The Forge and FML guys, for making this example",
+  "authorList": ["insaneau"],
+  "credits": "SkyBoy, tterrag1098 and others",
   "logoFile": "",
   "screenshots": [],
   "dependencies": []

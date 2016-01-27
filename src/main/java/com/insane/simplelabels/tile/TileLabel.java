@@ -20,6 +20,7 @@ import powercrystals.minefactoryreloaded.api.IDeepStorageUnit;
 import com.insane.simplelabels.MessageLabelUpdate;
 import com.insane.simplelabels.PacketHandler;
 import com.insane.simplelabels.SimpleLabels;
+import com.insane.simplelabels.Util;
 
 public class TileLabel extends TileEntity implements ITickable
 {
@@ -68,15 +69,9 @@ public class TileLabel extends TileEntity implements ITickable
     	if (extractAmount > stored.stackSize)
     		extractAmount = stored.stackSize;
     	
-    	//EntityItem dropItem = new EntityItem(this.worldObj);
     	ItemStack dropStack = stored.copy(); dropStack.stackSize = extractAmount;
     	
-    	dropItemInWorld(this, player, dropStack, 0.02);
-    	
-    	//dropItem.setEntityItemStack(dropStack);
-    	//dropItem.setPosition(this.pos.getX() + 0.5*this.dsuDirection.getFrontOffsetX(), this.pos.getY() + 0.5*this.dsuDirection.getFrontOffsetY(), this.pos.getZ() + 0.5*this.dsuDirection.getFrontOffsetZ());
-    	
-    	//this.worldObj.spawnEntityInWorld(dropItem);
+    	Util.dropItemInWorld(this, player, dropStack, 0.02);
     	
     	dsu.setStoredItemCount(stored.stackSize - extractAmount);
     	
@@ -161,7 +156,11 @@ public class TileLabel extends TileEntity implements ITickable
     {
     	BlockPos pos = new BlockPos(this.pos.getX() - dsuDirection.getFrontOffsetX(), this.pos.getY() - dsuDirection.getFrontOffsetY(), this.pos.getZ()
                 - dsuDirection.getFrontOffsetZ());
-        return (IDeepStorageUnit) this.worldObj.getTileEntity(pos);
+    	TileEntity te =  this.worldObj.getTileEntity(pos);
+    	if (te instanceof IDeepStorageUnit)
+    		return (IDeepStorageUnit) this.worldObj.getTileEntity(pos);
+    	else 
+			return null;
     }
 
     @Override
@@ -252,52 +251,7 @@ public class TileLabel extends TileEntity implements ITickable
         super.readFromNBT(tag);
     }
     
-    public static void dropItemInWorld(TileEntity source, EntityPlayer player, ItemStack stack, double speedfactor) 
-    {
-		int hitOrientation = MathHelper.floor_double(player.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
-		double stackCoordX = 0.0D, stackCoordY = 0.0D, stackCoordZ = 0.0D;
 
-		switch (hitOrientation) {
-			case 0:
-				stackCoordX = source.getPos().getX() + 0.5D;
-				stackCoordY = source.getPos().getY() + 0.5D;
-				stackCoordZ = source.getPos().getZ() - 0.25D;
-				break;
-			case 1:
-				stackCoordX = source.getPos().getX() + 1.25D;
-				stackCoordY = source.getPos().getY() + 0.5D;
-				stackCoordZ = source.getPos().getZ() + 0.5D;
-				break;
-			case 2:
-				stackCoordX = source.getPos().getX() + 0.5D;
-				stackCoordY = source.getPos().getY() + 0.5D;
-				stackCoordZ = source.getPos().getZ() + 1.25D;
-				break;
-			case 3:
-				stackCoordX = source.getPos().getX() - 0.25D;
-				stackCoordY = source.getPos().getY() + 0.5D;
-				stackCoordZ = source.getPos().getZ() + 0.5D;
-				break;
-		}
-
-		EntityItem droppedEntity = new EntityItem(source.getWorld(), stackCoordX, stackCoordY, stackCoordZ, stack);
-
-		if (player != null) {
-			Vec3 motion = new Vec3(player.posX - stackCoordX, player.posY - stackCoordY, player.posZ - stackCoordZ);
-			motion.normalize();
-			droppedEntity.motionX = motion.xCoord;
-			droppedEntity.motionY = motion.yCoord;
-			droppedEntity.motionZ = motion.zCoord;
-			double offset = 0.25D;
-			droppedEntity.moveEntity(motion.xCoord * offset, motion.yCoord * offset, motion.zCoord * offset);
-		}
-
-		droppedEntity.motionX *= speedfactor;
-		droppedEntity.motionY *= speedfactor;
-		droppedEntity.motionZ *= speedfactor;
-
-		source.getWorld().spawnEntityInWorld(droppedEntity);
-	}
 
 
 }

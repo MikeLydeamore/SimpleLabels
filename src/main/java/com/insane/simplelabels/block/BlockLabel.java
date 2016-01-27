@@ -16,6 +16,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
@@ -177,7 +178,7 @@ public class BlockLabel extends Block implements ITileEntityProvider
         case 5:
             this.setBlockBounds(0, BOUNDS_MIN, BOUNDS_MIN, WIDTH, BOUNDS_MAX, BOUNDS_MAX);
             break;
-        }
+        } 
     }
 
     @Override
@@ -186,11 +187,16 @@ public class BlockLabel extends Block implements ITileEntityProvider
     {
         this.setBlockBounds(1 - WIDTH, BOUNDS_MIN, BOUNDS_MIN, 1, BOUNDS_MAX, BOUNDS_MAX);
     }
+    
+    public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state)
+    {
+        return null;
+    }
 
     @Override
     public int getRenderType()
     {
-        return renderId;
+        return 3;
     }
 
     @Override
@@ -205,10 +211,17 @@ public class BlockLabel extends Block implements ITileEntityProvider
         return false;
     }
     
+    @Override
+    public boolean isFullCube()
+    {
+        return false;
+    }
+    
 	@SideOnly(Side.CLIENT)
 	public void initModel()
 	{
-		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), 0,
+		for (int i = 0; i < 6; i++)
+			ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), i,
 				new ModelResourceLocation(getRegistryName(), "inventory"));
 	}
 }

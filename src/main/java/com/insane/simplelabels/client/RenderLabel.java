@@ -2,22 +2,14 @@ package com.insane.simplelabels.client;
 
 import java.awt.Color;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.entity.RenderItem;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.EnumSkyBlock;
-import net.minecraft.world.IBlockAccess;
-
-import com.insane.simplelabels.block.BlockLabel;
 import com.insane.simplelabels.tile.TileLabel;
 
 
@@ -30,8 +22,6 @@ public class RenderLabel extends TileEntitySpecialRenderer<TileLabel>
     @Override
     public void renderTileEntityAt(TileLabel te, double x, double y, double z, float f, int stage)
     {
-        Minecraft mc = Minecraft.getMinecraft();
-
         ItemStack stack = te.getLabelStack(false);
         if (stack!= null)
         {
@@ -50,13 +40,11 @@ public class RenderLabel extends TileEntitySpecialRenderer<TileLabel>
             
             EnumFacing side = te.getDsuDirection();
 
-            // Fix lighting pos
-            BlockPos pos = new BlockPos(1,1,1);
             int ambientLight = te.getWorld().getLightFor(EnumSkyBlock.BLOCK, te.getPos().add(side.getFrontOffsetX(),  side.getFrontOffsetY(),  side.getFrontOffsetZ()));
             int lightX = ambientLight % 65536;
             int lightY = ambientLight / 65536;
             float mult = 1.0F;
-            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightX * mult, lightY * mult);
+            //OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, lightX * mult, lightY * mult);
             
             // Move to the block
             glTranslated(x + 0.5, y + 0.5, z + 0.5);
@@ -109,7 +97,7 @@ public class RenderLabel extends TileEntitySpecialRenderer<TileLabel>
             String str = stacksStr + "*" + maxStack + " + " + leftover;
             int stringWidth = this.getFontRenderer().getStringWidth(str);
             this.getFontRenderer().drawString(str, -(stringWidth / 2), 0, Color.BLACK.getRGB());
-            GlStateManager.translate(-0.75f, -0.5f, -0.01f);
+            GlStateManager.translate(-0.75f, -0.5f, -0.023f);
             this.getFontRenderer().drawString(str, -(stringWidth / 2), 0, Color.WHITE.getRGB());
             GlStateManager.popMatrix();
 

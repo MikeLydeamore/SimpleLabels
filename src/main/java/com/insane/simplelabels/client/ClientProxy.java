@@ -24,6 +24,7 @@ public class ClientProxy extends CommonProxy
     public void initModels()
     {
     	SimpleLabels.vsu.initModel();
+    	SimpleLabels.label.initModel();
     }
 
 }

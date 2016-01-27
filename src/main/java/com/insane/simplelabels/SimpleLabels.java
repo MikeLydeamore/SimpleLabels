@@ -1,6 +1,8 @@
 package com.insane.simplelabels;
 
+import net.minecraft.block.state.BlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
@@ -52,7 +54,7 @@ public class SimpleLabels {
 	public void init(FMLInitializationEvent event)
 	{
 		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(label), new Object[] {"xxx","xyx","xxx", 'x', Items.paper, 'y', "slabWood"}));
-		
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(vsu), new Object[]{"xxx","y y","zzz", 'x', Blocks.light_weighted_pressure_plate, 'y', Blocks.iron_block, 'z', Blocks.obsidian}));
 		PacketHandler.init();
 	}
 	

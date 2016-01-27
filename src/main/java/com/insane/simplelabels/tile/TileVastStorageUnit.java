@@ -1,9 +1,5 @@
 package com.insane.simplelabels.tile;
 
-import com.insane.simplelabels.MessageLabelUpdate;
-import com.insane.simplelabels.MessageVSUUpdate;
-import com.insane.simplelabels.PacketHandler;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -13,6 +9,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.items.CapabilityItemHandler;
 import powercrystals.minefactoryreloaded.api.IDeepStorageUnit;
 
 public class TileVastStorageUnit extends TileEntity implements ITickable, IDeepStorageUnit {
@@ -54,8 +51,7 @@ public class TileVastStorageUnit extends TileEntity implements ITickable, IDeepS
 	@Override
 	public <T> T getCapability(Capability<T> capability, EnumFacing facing)
 	{
-		System.out.println("test");
-		if (facing != null && capability == net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+		if (facing != null && capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
 			return (T) handler;
 
 		return super.getCapability(capability, facing);
@@ -85,14 +81,15 @@ public class TileVastStorageUnit extends TileEntity implements ITickable, IDeepS
 	{
 		NBTTagCompound tag = new NBTTagCompound();
 		writeToNBT(tag);
-		return new S35PacketUpdateTileEntity(getPos(), 1, tag);
+		return new S35PacketUpdateTileEntity(getPos(), 0, tag);
 	}
 
 	@Override
 	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet) 
 	{
 		NBTTagCompound tag = packet.getNbtCompound();
-		readFromNBT(tag);
+		if (tag != null)
+			readFromNBT(tag);
 	}
 
 	@Override
