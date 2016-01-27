@@ -1,5 +1,7 @@
 package com.insane.simplelabels.tile;
 
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -7,6 +9,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ITickable;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -56,6 +59,12 @@ public class TileVastStorageUnit extends TileEntity implements ITickable, IDeepS
 
 		return super.getCapability(capability, facing);
 	}
+	
+	@Override
+	public boolean hasCapability(Capability<?> capability, EnumFacing facing)
+    {
+        return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
+    }
 
 	@Override
 	public void writeToNBT(NBTTagCompound tag)
@@ -102,5 +111,7 @@ public class TileVastStorageUnit extends TileEntity implements ITickable, IDeepS
 				this.markDirty();
 			}
 	}
+
+		
 
 }

@@ -12,11 +12,20 @@ public class VSUHandler extends ItemStackHandler {
 	{
 		super(1);
 	}
+	
+	@Override
+	public ItemStack extractItem(int slot, int amount, boolean simulate)
+	{
+		ItemStack stack = super.extractItem(slot, amount, simulate);
+		if (stack != null)
+			System.out.println(stack.getDisplayName());
+		return stack;
+	}
 
 	@Override
 	protected int getStackLimit(int slot, ItemStack stack)
 	{
-		return 255;
+		return Integer.MAX_VALUE;
 	}
 
 	public ItemStack getStack()
