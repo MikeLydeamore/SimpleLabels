@@ -25,7 +25,7 @@ group= "com.insane.simplelabels" // http://maven.apache.org/guides/mini/guide-na
 archivesBaseName = "simplelabels"
 
 minecraft {
-    version = "1.8.9-11.15.1.1723"
+    version = "1.8.9-11.15.1.1724"
     runDir = "run"
     
     // the mappings can be changed at any time, and must be in the following format.
