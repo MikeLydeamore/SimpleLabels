@@ -1,6 +1,5 @@
 package com.insane.simplelabels;
 
-import net.minecraft.block.state.BlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -19,7 +18,7 @@ import com.insane.simplelabels.block.itemblock.ItemBlockLabel;
 import com.insane.simplelabels.tile.TileLabel;
 import com.insane.simplelabels.tile.TileVastStorageUnit;
 
-@Mod(modid=SimpleLabels.MODID, name="SimpleLabels", version="0.0.1", dependencies="after:MineFactoryReloaded")
+@Mod(modid=SimpleLabels.MODID, name="SimpleLabels", version="0.0.1", dependencies="required-after:Forge@[11.15.1.1724,),after:MineFactoryReloaded")
 public class SimpleLabels {
 	
 	public static final String MODID = "SimpleLabels";
