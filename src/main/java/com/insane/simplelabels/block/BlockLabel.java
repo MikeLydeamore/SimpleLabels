@@ -7,19 +7,21 @@ import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
@@ -36,6 +38,13 @@ public class BlockLabel extends Block implements ITileEntityProvider
     public static float BOUNDS_MAX = 14f / 16f;
     public static float WIDTH = 0.01f;
     public static int renderId;
+    
+    private AxisAlignedBB[] boundingBoxes = {new AxisAlignedBB(BOUNDS_MIN, 1 - WIDTH, BOUNDS_MIN, BOUNDS_MAX, 1, BOUNDS_MAX),
+    		new AxisAlignedBB(BOUNDS_MIN, 0, BOUNDS_MIN, BOUNDS_MAX, WIDTH, BOUNDS_MAX),
+    		new AxisAlignedBB(BOUNDS_MIN, BOUNDS_MIN, 1 - WIDTH, BOUNDS_MAX, BOUNDS_MAX, 1),
+    		new AxisAlignedBB(BOUNDS_MIN, BOUNDS_MIN, 0, BOUNDS_MAX, BOUNDS_MAX, WIDTH),
+    		new AxisAlignedBB(1 - WIDTH, BOUNDS_MIN, BOUNDS_MIN, 1, BOUNDS_MAX, BOUNDS_MAX),
+    		new AxisAlignedBB(0, BOUNDS_MIN, BOUNDS_MIN, WIDTH, BOUNDS_MAX, BOUNDS_MAX)};
 
     public static final PropertyEnum DIRECTION = PropertyEnum.create("direction", EnumFacing.class);
     
@@ -44,14 +53,14 @@ public class BlockLabel extends Block implements ITileEntityProvider
         super(Material.wood);
         this.setUnlocalizedName("label");
         this.setRegistryName("label");
-        this.setStepSound(soundTypeWood);
+        this.setStepSound(stepSound.WOOD);
         this.setHardness(2f);
     }
     
     @Override
-    protected BlockState createBlockState()
+    protected BlockStateContainer createBlockState()
     {
-    	return new BlockState(this, new IProperty[] { DIRECTION });
+    	return new BlockStateContainer(this, new IProperty[] { DIRECTION });
     }
     
     @SuppressWarnings("unchecked")
@@ -143,7 +152,7 @@ public class BlockLabel extends Block implements ITileEntityProvider
     }
     
     @Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float var7, float var8, float var9) {
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float var7, float var8, float var9) {
     	
 		if (!world.isRemote) 
 		{
@@ -155,37 +164,10 @@ public class BlockLabel extends Block implements ITileEntityProvider
 	}
 
     @Override
-    public void setBlockBoundsBasedOnState(IBlockAccess world, BlockPos pos)
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        int meta = getMetaFromState(world.getBlockState(pos));
-        switch (meta)
-        {
-        case 0:
-            this.setBlockBounds(BOUNDS_MIN, 1 - WIDTH, BOUNDS_MIN, BOUNDS_MAX, 1, BOUNDS_MAX);
-            break;
-        case 1:
-            this.setBlockBounds(BOUNDS_MIN, 0, BOUNDS_MIN, BOUNDS_MAX, WIDTH, BOUNDS_MAX);
-            break;
-        case 2:
-            this.setBlockBounds(BOUNDS_MIN, BOUNDS_MIN, 1 - WIDTH, BOUNDS_MAX, BOUNDS_MAX, 1);
-            break;
-        case 3:
-            this.setBlockBounds(BOUNDS_MIN, BOUNDS_MIN, 0, BOUNDS_MAX, BOUNDS_MAX, WIDTH);
-            break;
-        case 4:
-            this.setBlockBounds(1 - WIDTH, BOUNDS_MIN, BOUNDS_MIN, 1, BOUNDS_MAX, BOUNDS_MAX);
-            break;
-        case 5:
-            this.setBlockBounds(0, BOUNDS_MIN, BOUNDS_MIN, WIDTH, BOUNDS_MAX, BOUNDS_MAX);
-            break;
-        } 
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void setBlockBoundsForItemRender()
-    {
-        this.setBlockBounds(1 - WIDTH, BOUNDS_MIN, BOUNDS_MIN, 1, BOUNDS_MAX, BOUNDS_MAX);
+        int meta = getMetaFromState(state);
+        return boundingBoxes[meta];
     }
     
     public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state)
@@ -194,13 +176,13 @@ public class BlockLabel extends Block implements ITileEntityProvider
     }
 
     @Override
-    public int getRenderType()
+    public EnumBlockRenderType getRenderType(IBlockState state)
     {
-        return 3;
+        return EnumBlockRenderType.MODEL;
     }
 
     @Override
-    public boolean isOpaqueCube()
+    public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
@@ -212,7 +194,7 @@ public class BlockLabel extends Block implements ITileEntityProvider
     }
     
     @Override
-    public boolean isFullCube()
+    public boolean isFullCube(IBlockState state)
     {
         return false;
     }

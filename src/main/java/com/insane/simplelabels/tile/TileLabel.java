@@ -1,5 +1,6 @@
 package com.insane.simplelabels.tile;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -7,14 +8,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import powercrystals.minefactoryreloaded.api.IDeepStorageUnit;
 
 import com.insane.simplelabels.MessageLabelUpdate;
@@ -49,7 +48,8 @@ public class TileLabel extends TileEntity implements ITickable
                 setLabelStack(dsu.getStoredItemType());
                 this.markDirty();
                 this.sendPacket();
-                worldObj.markBlockForUpdate(this.pos);
+                IBlockState state = worldObj.getBlockState(pos);
+                worldObj.notifyBlockUpdate(pos, state, state, 3);
             }
         }
     }
@@ -171,7 +171,7 @@ public class TileLabel extends TileEntity implements ITickable
 
     private void sendPacket()
     {
-        PacketHandler.INSTANCE.sendToDimension(new MessageLabelUpdate(this.pos.getX(), this.pos.getY(), this.pos.getZ(), getLabelStack(false)), worldObj.provider.getDimensionId());
+        PacketHandler.INSTANCE.sendToDimension(new MessageLabelUpdate(this.pos.getX(), this.pos.getY(), this.pos.getZ(), getLabelStack(false)), worldObj.provider.getDimension());
     }
 
     public ItemStack getLabelStack(boolean forRender)
@@ -208,11 +208,11 @@ public class TileLabel extends TileEntity implements ITickable
     {
         NBTTagCompound tag = new NBTTagCompound();
         this.writeToNBT(tag);
-        return new S35PacketUpdateTileEntity(this.pos, this.getBlockMetadata(), tag);
+        return new SPacketUpdateTileEntity(this.pos, this.getBlockMetadata(), tag);
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
+    public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt)
     {
         NBTTagCompound tag = pkt.getNbtCompound();
         this.readFromNBT(tag);

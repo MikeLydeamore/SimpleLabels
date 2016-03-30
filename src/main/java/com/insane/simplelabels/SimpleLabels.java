@@ -18,7 +18,7 @@ import com.insane.simplelabels.block.itemblock.ItemBlockLabel;
 import com.insane.simplelabels.tile.TileLabel;
 import com.insane.simplelabels.tile.TileVastStorageUnit;
 
-@Mod(modid=SimpleLabels.MODID, name="SimpleLabels", version="0.0.3", dependencies="required-after:forge@[11.15.1.1724,);after:MineFactoryReloaded")
+@Mod(modid=SimpleLabels.MODID, name="SimpleLabels", version="0.0.1", dependencies="after:MineFactoryReloaded")
 public class SimpleLabels {
 	
 	public static final String MODID = "SimpleLabels";
