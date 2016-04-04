@@ -33,7 +33,7 @@ public class BlockVastStorageUnit extends Block implements ITileEntityProvider {
 		this.setUnlocalizedName("blockVSU");
 		this.setRegistryName("blockVSU");
 		this.setHardness(3f);
-		GameRegistry.registerBlock(this);
+		GameRegistry.<Block>register(this);
 	}
 
 	@Override

@@ -55,6 +55,7 @@ public class BlockLabel extends Block implements ITileEntityProvider
         this.setRegistryName("label");
         this.setStepSound(stepSound.WOOD);
         this.setHardness(2f);
+        GameRegistry.<Block>register(this);
     }
     
     @Override

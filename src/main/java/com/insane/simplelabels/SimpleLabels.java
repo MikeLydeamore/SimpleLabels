@@ -36,7 +36,7 @@ public class SimpleLabels {
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		label = new BlockLabel();
-		GameRegistry.registerBlock(label, ItemBlockLabel.class);
+		GameRegistry.register(new ItemBlockLabel(label).setRegistryName(label.getRegistryName()));
 		GameRegistry.registerTileEntity(TileLabel.class, "TileLabel");
 		
 		vsu = new BlockVastStorageUnit();
