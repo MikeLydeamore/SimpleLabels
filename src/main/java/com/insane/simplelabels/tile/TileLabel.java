@@ -138,7 +138,7 @@ public class TileLabel extends TileEntity
 			return stack.stackSize;
 		}
 
-		if (stored.getItem() == stack.getItem() && stored.getItemDamage() == stack.getItemDamage())
+		if (stacksEqual(stored, stack, true))
 		{
 			int addAmount = stack.stackSize;
 			if (dsu.getMaxStoredCount() < stored.stackSize + stack.stackSize)
@@ -151,6 +151,17 @@ public class TileLabel extends TileEntity
 
 		return 0;
 
+	}
+	
+	public static boolean stacksEqual(ItemStack s1, ItemStack s2, boolean nbtSensitive)
+	{
+		if (s1 == null | s2 == null) return false;
+		if (!s1.isItemEqual(s2)) return false;
+		if (!nbtSensitive) return true;
+
+		if (s1.getTagCompound() == s2.getTagCompound()) return true;
+		if (s1.getTagCompound() == null || s2.getTagCompound() == null) return false;
+		return s1.getTagCompound().equals(s2.getTagCompound());
 	}
 
 	public void setPlacedDirection(int newDirection)
