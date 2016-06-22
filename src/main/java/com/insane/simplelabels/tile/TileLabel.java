@@ -135,7 +135,9 @@ public class TileLabel extends TileEntity
 		if (stored == null)
 		{
 			dsu.setStoredItemType(stack, stack.stackSize);
-			return stack.stackSize;
+			if (stacksEqual(stack, dsu.getStoredItemType(), true))
+				return stack.stackSize;
+			return 0;
 		}
 
 		if (stacksEqual(stored, stack, true))
