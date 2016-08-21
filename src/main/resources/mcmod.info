@@ -1,14 +1,14 @@
 [
 {
-  "modid": "SimpleLabels",
-  "name": "SimpleLabels",
-  "description": "This mod modifies how you interact with your Deep Storage Unit by adding a DSU Label. View current the item and amount, input items with right click, extract with left click, shift left click...",
+  "modid": "simplelabels",
+  "name": "Simple Labels",
+  "description": "Labels for your DSU's!",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "http://minecraft.curseforge.com/projects/simplelabels",
+  "url": "",
   "updateUrl": "",
-  "authorList": ["insaneau", "tterrag1098"],
-  "credits": "",
+  "authorList": ["insaneau"],
+  "credits": "SkyBoy, tterrag1098 and others",
   "logoFile": "",
   "screenshots": [],
   "dependencies": []

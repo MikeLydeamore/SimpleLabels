@@ -1,0 +1,20 @@
+{
+	"textures": {
+		"particle": "simplelabels:blocks/label",
+        "texture": "simplelabels:blocks/label"
+    },
+    "name": "label",
+    "elements": [
+        {   
+        	"from": [ 0.5, 0.5, 0 ],
+            "to": [ 15.5, 15.5, 0.2 ],
+            "faces": {
+                "up":    { "uv": [ 0, 0, 16, 16 ], "texture": "#texture"},
+                "north": { "uv": [  0, 0,  16, 16 ], "texture": "#texture"},
+                "south": { "uv": [  0, 0,  16, 16 ], "texture": "#texture"},
+                "west":  { "uv": [ 0, 0,  16, 16 ], "texture": "#texture"},
+                "east":  { "uv": [  0, 0, 16, 16 ], "texture": "#texture" }
+            }
+        }
+     ]
+}

@@ -1,94 +1,42 @@
+
+// For those who want the bleeding edge
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
         maven {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
-        maven {
-            name = "sonatype"
-            url = "https://oss.sonatype.org/content/repositories/snapshots/"
-        }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
     }
 }
+apply plugin: 'net.minecraftforge.gradle.forge'
 
-apply plugin: 'forge'
-apply plugin: 'maven-publish'
-
-def buildNum = System.getenv().BUILD_NUMBER
-version = "1.7.10-1.0-${buildNum}"
-
-group= "com.insane.simplelabels" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "SimpleLabels"
+/*
+// for people who want stable - not yet functional for MC 1.8.8 - we require the forgegradle 2.1 snapshot
+plugins {
+    id "net.minecraftforge.gradle.forge" version "2.0.2"
+}
+*/
+version = "0.0.2"
+group= "com.insane.simplelabels" 
+archivesBaseName = "simplelabels"
 
 minecraft {
-    version = "1.7.10-10.13.4.1448-1.7.10"
-    runDir = "eclipse"
-}
-
-task sourceJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    from javadoc.destinationDir
-    classifier = 'javadoc'
-}
-
-task deobfJar(type: Jar) {
-    from sourceSets.main.output
-    classifier = 'deobf'
-}
-
-publishing {
-    tasks.publish.dependsOn 'build'
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-
-            artifact sourceJar
-            artifact deobfJar
-        }
-    }
-
-    repositories {
-        if (project.hasProperty('mavendir')) {
-            maven { url mavendir }
-        }
-    }
-}
-
-repositories {
-    maven { url 'http://maven.tterrag.com/' }
-	ivy {
-		name "CoFHLib"
-		artifactPattern "http://addons.cursecdn.com/files/2238/569/[module]-[revision].[ext]"
-	}
-	ivy {
-		name "CoFHCore"
-        artifactPattern "http://addons.cursecdn.com/files/2240/264/[module]-[revision].[ext]"
-	}
-	ivy {
-		name "ThermalExpansion"
-        artifactPattern "http://addons.curse.cursecdn.com/files/2234/200/[module]-[revision].[ext]"
-    }
-	ivy {
-		name "ThermalFoundation"
-        artifactPattern "http://addons.curse.cursecdn.com/files/2240/82/[module]-[revision].[ext]"
-    }
+    version = "1.9-12.16.0.1826-1.9"
+    runDir = "run"
+    
+    mappings = "snapshot_20160312"
+    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
 dependencies {
-   //compile name: 'CoFHLib', version: "[1.7.10]1.0.3B1-163-dev", ext: 'jar'
-//	compile name: 'CoFHCore', version: "[1.7.10]3.0.2-283-dev", ext: 'jar'
-//	compile name: 'ThermalExpansion', version: "[1.7.10]4.0.1-182", ext: 'jar'
-//	compile name: 'ThermalFoundation', version: "[1.7.10]1.0.0-86", ext: 'jar'
+    
 
 }
+
 processResources
 {
     // this will ensure that this task is redone when the versions change.

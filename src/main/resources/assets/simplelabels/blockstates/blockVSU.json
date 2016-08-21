@@ -1,0 +1,10 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "model": "simplelabels:blockVSU"
+  },
+  "variants": {
+    "normal": [{}],
+    "inventory": [{}]
+  }
+}

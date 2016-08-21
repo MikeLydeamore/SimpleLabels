@@ -1,0 +1,10 @@
+{
+	"variants": {
+		"direction=up": { "model": "simplelabels:label", "x": 90},
+		"direction=down": { "model": "simplelabels:label", "x": 270 },
+		"direction=north": { "model": "simplelabels:label", "y": 180},
+		"direction=south": { "model": "simplelabels:label"},
+		"direction=east": { "model": "simplelabels:label", "y": 270},
+		"direction=west": { "model": "simplelabels:label", "y": 90}
+	}
+}

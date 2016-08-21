@@ -1,6 +1,10 @@
 package com.insane.simplelabels;
 
 import io.netty.buffer.ByteBuf;
+
+import com.insane.simplelabels.tile.TileLabel;
+import com.insane.simplelabels.tile.TileVastStorageUnit;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -10,15 +14,13 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-import com.insane.simplelabels.tile.TileLabel;
-
-public class MessageLabelUpdate implements IMessage {
-
-	public MessageLabelUpdate() {}
+public class MessageVSUUpdate implements IMessage {
+	
+	public MessageVSUUpdate() {}
 	
 	public int x,y,z;
 	public ItemStack storedStack;
-	public MessageLabelUpdate(int x, int y, int z, ItemStack storedStack)
+	public MessageVSUUpdate(int x, int y, int z, ItemStack storedStack)
 	{
 		this.x = x;
 		this.y = y;
@@ -52,17 +54,25 @@ public class MessageLabelUpdate implements IMessage {
         this.z = buf.readInt();
     }
 
-	public static final class Handler implements IMessageHandler<MessageLabelUpdate, IMessage>
+	public static final class Handler implements IMessageHandler<MessageVSUUpdate, IMessage>
 	{		
 		@Override
-		public IMessage onMessage(MessageLabelUpdate message, MessageContext ctx)
+		public IMessage onMessage(MessageVSUUpdate message, MessageContext ctx)
 		{
 			TileEntity te =  Minecraft.getMinecraft().theWorld.getTileEntity(new BlockPos(message.x, message.y, message.z));
-			if (te != null && te instanceof TileLabel)
+			if (te != null && te instanceof TileVastStorageUnit)
 			{
-				((TileLabel) te).setLabelStack(message.storedStack);
+				if (message.storedStack == null)
+				{
+					((TileVastStorageUnit) te).setStoredItemType(null, 0);
+				}
+				else
+				{
+					((TileVastStorageUnit) te).setStoredItemType(message.storedStack, message.storedStack.stackSize);
+				}
 			}
 			return null;
 		}
 	}
+
 }
