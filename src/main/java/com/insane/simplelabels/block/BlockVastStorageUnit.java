@@ -29,7 +29,7 @@ public class BlockVastStorageUnit extends Block implements ITileEntityProvider {
 
 	public BlockVastStorageUnit()
 	{
-		super(Material.rock);
+		super(Material.ROCK);
 		this.setUnlocalizedName("blockVSU");
 		this.setRegistryName("blockVSU");
 		this.setHardness(3f);

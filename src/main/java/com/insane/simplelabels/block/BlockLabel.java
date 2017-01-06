@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
@@ -50,10 +51,10 @@ public class BlockLabel extends Block implements ITileEntityProvider
     
     public BlockLabel()
     {
-        super(Material.wood);
+        super(Material.WOOD);
         this.setUnlocalizedName("label");
         this.setRegistryName("label");
-        this.setStepSound(stepSound.WOOD);
+        this.setSoundType(SoundType.WOOD);
         this.setHardness(2f);
         GameRegistry.<Block>register(this);
     }
@@ -79,12 +80,14 @@ public class BlockLabel extends Block implements ITileEntityProvider
     }
     
     @Override
-    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock)
+    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn)
     {
     	TileLabel te = (TileLabel) world.getTileEntity(pos);
     	if (te.getDSU() == null)
     	{
     		this.breakBlock(world, pos, state);
+    		this.dropBlockAsItem(world, pos, state, 0);
+    		world.setBlockToAir(pos);
     	}
     }
 

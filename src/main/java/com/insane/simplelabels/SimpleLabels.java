@@ -3,6 +3,7 @@ package com.insane.simplelabels;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -36,14 +37,15 @@ public class SimpleLabels {
 	public void preInit(FMLPreInitializationEvent event)
 	{
 		label = new BlockLabel();
-		GameRegistry.register(new ItemBlockLabel(label).setRegistryName(label.getRegistryName()));
+		GameRegistry.register(new ItemBlockLabel(label));
 		GameRegistry.registerTileEntity(TileLabel.class, "TileLabel");
 		
 		vsu = new BlockVastStorageUnit();
+		GameRegistry.register(new ItemBlock(vsu).setRegistryName("blockVSU"));
 		GameRegistry.registerTileEntity(TileVastStorageUnit.class, "TileVSU");
 		
-		label.setCreativeTab(CreativeTabs.tabDecorations);
-		vsu.setCreativeTab(CreativeTabs.tabDecorations);
+		label.setCreativeTab(CreativeTabs.DECORATIONS);
+		vsu.setCreativeTab(CreativeTabs.DECORATIONS);
 		
 		proxy.registerRenderers();
 		proxy.initModels();
@@ -52,8 +54,8 @@ public class SimpleLabels {
 	@Mod.EventHandler
 	public void init(FMLInitializationEvent event)
 	{
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(label), new Object[] {"xxx","xyx","xxx", 'x', Items.paper, 'y', "slabWood"}));
-		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(vsu), new Object[]{"xxx","y y","zzz", 'x', Blocks.light_weighted_pressure_plate, 'y', Blocks.iron_block, 'z', Blocks.obsidian}));
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(label), new Object[] {"xxx","xyx","xxx", 'x', Items.PAPER, 'y', "slabWood"}));
+		GameRegistry.addRecipe(new ShapedOreRecipe(new ItemStack(vsu), new Object[]{"xxx","y y","zzz", 'x', Blocks.LIGHT_WEIGHTED_PRESSURE_PLATE, 'y', Blocks.IRON_BLOCK, 'z', Blocks.OBSIDIAN}));
 		PacketHandler.init();
 	}
 	

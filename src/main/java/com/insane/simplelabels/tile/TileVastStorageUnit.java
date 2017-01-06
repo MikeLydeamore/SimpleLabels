@@ -66,12 +66,12 @@ public class TileVastStorageUnit extends TileEntity implements ITickable, IDeepS
     }
 
 	@Override
-	public void writeToNBT(NBTTagCompound tag)
+	public NBTTagCompound writeToNBT(NBTTagCompound tag)
 	{
-		super.writeToNBT(tag);
-
 		NBTTagCompound handlerTag = handler.serializeNBT();
 		tag.setTag("handler", handlerTag);
+		
+		return super.writeToNBT(tag);
 	}
 
 	@Override
@@ -85,7 +85,7 @@ public class TileVastStorageUnit extends TileEntity implements ITickable, IDeepS
 	}
 
 	@Override
-	public Packet getDescriptionPacket() 
+	public SPacketUpdateTileEntity getUpdatePacket() 
 	{
 		NBTTagCompound tag = new NBTTagCompound();
 		writeToNBT(tag);
