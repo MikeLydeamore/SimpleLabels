@@ -9,7 +9,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
@@ -20,15 +20,15 @@ plugins {
     id "net.minecraftforge.gradle.forge" version "2.0.2"
 }
 */
-version = "0.0.2"
+version = "1-10.2-0.0.1"
 group= "com.insane.simplelabels" 
 archivesBaseName = "simplelabels"
 
 minecraft {
-    version = "1.9-12.16.0.1826-1.9"
+    version = "1.10.2-12.18.3.2185"
     runDir = "run"
     
-    mappings = "snapshot_20160312"
+    mappings = "snapshot_20160824"
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 }
 
