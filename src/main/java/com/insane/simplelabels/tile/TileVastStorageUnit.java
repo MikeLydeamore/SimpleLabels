@@ -99,6 +99,12 @@ public class TileVastStorageUnit extends TileEntity implements ITickable, IDeepS
 		if (tag != null)
 			readFromNBT(tag);
 	}
+	
+	@Override
+    public NBTTagCompound getUpdateTag() {
+    	NBTTagCompound tag = writeToNBT(new NBTTagCompound());
+    	return tag;
+    }
 
 	@Override
 	public void update() 
