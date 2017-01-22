@@ -41,7 +41,6 @@ public class TileLabel extends TileEntity implements ITickable
     {
         if (!this.worldObj.isRemote)
         {
-        	//System.out.println(dsu.g);
             dsu = getDSU();
             if (dsu != null && !ItemStack.areItemStacksEqual(getLabelStack(false), dsu.getStoredItemType()))
             {
@@ -49,7 +48,7 @@ public class TileLabel extends TileEntity implements ITickable
                 this.markDirty();
                 this.sendPacket();
                 IBlockState state = worldObj.getBlockState(pos);
-                worldObj.notifyBlockUpdate(pos, state, state, 3);
+                worldObj.setBlockState(pos, state);
             }
         }
     }
@@ -210,6 +209,12 @@ public class TileLabel extends TileEntity implements ITickable
         this.writeToNBT(tag);
         return new SPacketUpdateTileEntity(this.pos, this.getBlockMetadata(), tag);
     }
+    
+    @Override
+    public NBTTagCompound getUpdateTag() {
+    	NBTTagCompound tag = writeToNBT(new NBTTagCompound());
+    	return tag;
+    }
 
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt)
@@ -222,32 +227,35 @@ public class TileLabel extends TileEntity implements ITickable
     @Override
     public NBTTagCompound writeToNBT(NBTTagCompound tag)
     {
+    	NBTTagCompound labelTag = new NBTTagCompound();
         if (getLabelStack(false) != null)
         {
             NBTTagCompound item = new NBTTagCompound();
-            getLabelStack(false).writeToNBT(item);
+            item = getLabelStack(false).writeToNBT(item);
             item.setInteger("actualSize", getLabelStack(false).stackSize);
-            tag.setTag("storedItem", item);
+            labelTag.setTag("storedItem", item);
         }
-        tag.setString("dsuDir", dsuDirection.name());
-        tag.setInteger("renderDirection", placedDirection);
-        tag.setLong("clickTime", clickTime);
+        labelTag.setString("dsuDir", dsuDirection.getName());
+        labelTag.setInteger("renderDirection", placedDirection);
+        labelTag.setLong("clickTime", clickTime);
+        tag.setTag("labelTag", labelTag);
         return super.writeToNBT(tag);
     }
 
     @Override
     public void readFromNBT(NBTTagCompound tag)
     {
-        if (tag.hasKey("storedItem"))
+    	NBTTagCompound labelTag = (NBTTagCompound) tag.getTag("labelTag");
+        if (labelTag.hasKey("storedItem"))
         {
-            NBTTagCompound item = tag.getCompoundTag("storedItem");
+            NBTTagCompound item = labelTag.getCompoundTag("storedItem");
             ItemStack stack = ItemStack.loadItemStackFromNBT(item);
             stack.stackSize = item.getInteger("actualSize");
             setLabelStack(stack);
         }
-        this.dsuDirection = EnumFacing.valueOf(tag.getString("dsuDir"));
-        this.placedDirection = tag.getInteger("renderDirection");
-        this.clickTime = tag.getLong("clickTime");
+        this.dsuDirection = EnumFacing.byName(labelTag.getString("dsuDir"));
+        this.placedDirection = labelTag.getInteger("renderDirection");
+        this.clickTime = labelTag.getLong("clickTime");
         super.readFromNBT(tag);
     }
     
