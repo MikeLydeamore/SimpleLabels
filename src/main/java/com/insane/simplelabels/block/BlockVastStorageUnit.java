@@ -1,7 +1,12 @@
 package com.insane.simplelabels.block;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import javax.annotation.Nullable;
+
+import com.google.common.collect.Lists;
 import com.insane.simplelabels.Util;
 import com.insane.simplelabels.tile.TileVastStorageUnit;
 
@@ -13,6 +18,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -43,39 +49,66 @@ public class BlockVastStorageUnit extends Block implements ITileEntityProvider {
 	}
 	
 	@Override
-	public final ArrayList<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune)
-	{
-		ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
-		
-		return ret;
-	}
-	
-	@Override
 	public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
-		if (stack.getTagCompound() != null)
+        TileVastStorageUnit te = (TileVastStorageUnit) world.getTileEntity(pos);
+		if (stack.hasTagCompound() && te != null)
 		{
-			TileVastStorageUnit te = (TileVastStorageUnit) world.getTileEntity(pos);
-			te.readFromNBT(stack.getTagCompound());
+		    if (stack.getTagCompound().hasKey("storedItem"))
+		    {
+    			ItemStack stored = ItemStack.loadItemStackFromNBT(stack.getTagCompound().getCompoundTag("storedItem"));
+    			int amount = stack.getTagCompound().getInteger("storedCount");
+    			te.setStoredItemType(stored, amount);
+		    }
+		    else
+		    {
+		        // Legacy handling
+		        te.readFromNBT(stack.getTagCompound());
+		        te.setPos(pos);
+		    }
 		}
 		
 		super.onBlockPlacedBy(world, pos, state, placer, stack);
     }
-	
-	@Override
-	 public void breakBlock(World world, BlockPos pos, IBlockState state)
+
+    @Override
+    public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest) 
     {
-		TileVastStorageUnit te = (TileVastStorageUnit) world.getTileEntity(pos);
-		NBTTagCompound tag = new NBTTagCompound();
-		te.writeToNBT(tag);
-		
-		ItemStack stack = new ItemStack(this);
-		stack.setTagCompound(tag);
-		
-		EntityItem drop = new EntityItem(world, pos.getX(), pos.getY(), pos.getZ());
-		drop.setEntityItemStack(stack);
-		world.spawnEntityInWorld(drop);
-        super.breakBlock(world, pos, state);
+        if (willHarvest) 
+        {
+            return true;
+        }
+        return super.removedByPlayer(state, world, pos, player, willHarvest);
+    }
+
+    @Override
+    public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, @Nullable TileEntity te, @Nullable ItemStack stack) 
+    {
+        super.harvestBlock(worldIn, player, pos, state, te, stack);
+        worldIn.setBlockToAir(pos);
+    }
+
+    @Override
+    public List<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) 
+    {
+        TileVastStorageUnit te = (TileVastStorageUnit) world.getTileEntity(pos);
+        if (te != null)
+        {
+            ItemStack stack = new ItemStack(this);
+
+            if (te.getStoredItemType() != null)
+            {
+                NBTTagCompound tag = new NBTTagCompound();
+                ItemStack stored = te.getStoredItemType();
+                tag.setInteger("storedCount", stored.stackSize);
+                tag.setTag("storedItem", stored.writeToNBT(new NBTTagCompound()));
+                
+                stack.setTagCompound(tag);
+            }
+            
+            return Lists.newArrayList(stack);
+        }
+        return Collections.emptyList();
     }
 
 	@SideOnly(Side.CLIENT)
@@ -84,5 +117,4 @@ public class BlockVastStorageUnit extends Block implements ITileEntityProvider {
 		ModelLoader.setCustomModelResourceLocation(Item.getItemFromBlock(this), 0,
 				new ModelResourceLocation(getRegistryName(), "inventory"));
 	}
-
 }

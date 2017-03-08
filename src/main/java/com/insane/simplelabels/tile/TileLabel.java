@@ -126,7 +126,7 @@ public class TileLabel extends TileEntity implements ITickable
     		return stack.stackSize;
     	}
     	
-    	if (stored.getItem() == stack.getItem() && stored.getItemDamage() == stack.getItemDamage())
+    	if (stored.isItemEqualIgnoreDurability(stack) && ItemStack.areItemStackTagsEqual(stored, stack))
     	{
     		int addAmount = stack.stackSize;
     		if (dsu.getMaxStoredCount() < stored.stackSize + stack.stackSize)

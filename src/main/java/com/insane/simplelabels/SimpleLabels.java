@@ -1,9 +1,15 @@
 package com.insane.simplelabels;
 
+import com.insane.simplelabels.block.BlockLabel;
+import com.insane.simplelabels.block.BlockVastStorageUnit;
+import com.insane.simplelabels.block.itemblock.ItemBlockLabel;
+import com.insane.simplelabels.block.itemblock.ItemBlockVSU;
+import com.insane.simplelabels.tile.TileLabel;
+import com.insane.simplelabels.tile.TileVastStorageUnit;
+
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -12,12 +18,6 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.ShapedOreRecipe;
-
-import com.insane.simplelabels.block.BlockLabel;
-import com.insane.simplelabels.block.BlockVastStorageUnit;
-import com.insane.simplelabels.block.itemblock.ItemBlockLabel;
-import com.insane.simplelabels.tile.TileLabel;
-import com.insane.simplelabels.tile.TileVastStorageUnit;
 
 @Mod(modid=SimpleLabels.MODID, name="SimpleLabels", version="0.0.1", dependencies="after:MineFactoryReloaded")
 public class SimpleLabels {
@@ -41,7 +41,7 @@ public class SimpleLabels {
 		GameRegistry.registerTileEntity(TileLabel.class, "TileLabel");
 		
 		vsu = new BlockVastStorageUnit();
-		GameRegistry.register(new ItemBlock(vsu).setRegistryName("blockVSU"));
+		GameRegistry.register(new ItemBlockVSU(vsu).setRegistryName("blockVSU"));
 		GameRegistry.registerTileEntity(TileVastStorageUnit.class, "TileVSU");
 		
 		label.setCreativeTab(CreativeTabs.DECORATIONS);
