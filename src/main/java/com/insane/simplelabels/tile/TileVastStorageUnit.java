@@ -37,9 +37,15 @@ public class TileVastStorageUnit extends TileEntity implements ITickable, IDeepS
 	public void setStoredItemType(ItemStack type, int amount) 
 	{
 		if (type == null)
+		{
 			handler.setStackInSlot(0,  null);
-		else 
-			handler.setStackInSlot(0, type.copy());
+		}
+		else
+		{
+		    type = type.copy();
+		    type.stackSize = amount;
+			handler.setStackInSlot(0, type);
+		}
 		this.markDirty();
 	}
 
